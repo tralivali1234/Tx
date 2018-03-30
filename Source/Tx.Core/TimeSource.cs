@@ -25,7 +25,7 @@ namespace System.Reactive
         private readonly ManualResetEvent _completed;
 
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="TimeSource{T}"/> class.
         /// </summary>
         /// <param name="source">The event sequence to use as source</param>
         /// <param name="timeFunction">Expression to extract the timestamp</param>
@@ -34,7 +34,7 @@ namespace System.Reactive
             Func<T, DateTimeOffset> timeFunction)
         {
             if (timeFunction == null)
-                throw new ArgumentNullException("timeFunction");
+                throw new ArgumentNullException(nameof(timeFunction));
 
             _source = source;
             _scheduler = new TimeSegmentScheduler();
@@ -107,7 +107,7 @@ namespace System.Reactive
             if (_completed != null) _completed.Dispose();
         }
 
-        private class TimeSegmentScheduler : IScheduler
+        private sealed class TimeSegmentScheduler : IScheduler
         {
             private readonly HistoricalScheduler _historical = new HistoricalScheduler();
             private readonly List<IPostponedWorkItem> _postponed;

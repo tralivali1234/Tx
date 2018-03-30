@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Subjects;
 using System.Threading;
+using System.Reflection;
 
 namespace System.Reactive
 {
@@ -15,6 +16,10 @@ namespace System.Reactive
         private readonly List<IInputStream> _inputs;
         private Dictionary<Type, long> _statistics;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TypeOccurenceStatistics"/> class.
+        /// </summary>
+        /// <param name="availableTypes">Types for which the collection of statistics need to be enabled.</param>
         public TypeOccurenceStatistics(Type[] availableTypes)
         {
             _availableTypes = availableTypes;
@@ -58,11 +63,11 @@ namespace System.Reactive
 
             foreach (var mapInstance in typeMaps)
             {
-                Type mapInterface = mapInstance.GetType().GetInterface(typeof(IPartitionableTypeMap<,>).Name);
+                Type mapInterface = mapInstance.GetType().GetTypeInfo().ImplementedInterfaces.FirstOrDefault(i => i.Name == typeof(IPartitionableTypeMap<,>).Name);
                 if (mapInterface == null)
                     continue;
                 Type aggregatorType =
-                    typeof (TypeOccurenceAggregator<,>).MakeGenericType(mapInterface.GetGenericArguments());
+                    typeof (TypeOccurenceAggregator<,>).MakeGenericType(mapInterface.GenericTypeArguments);
                 object aggregatorInstance = Activator.CreateInstance(aggregatorType, mapInstance, _availableTypes);
                 _aggregators.Add((TypeOccurenceAggregator) aggregatorInstance);
 
